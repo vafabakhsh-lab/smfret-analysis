@@ -1,3 +1,6 @@
+% Suppress no terminal ; error/warning
+%#ok<*NOPTS>
+
 
 close all;
 fclose('all');
@@ -20,6 +23,9 @@ timeunit=input('Time unit: [default=0.03 sec] ');
         timeunit=0.03;
     end
     
+% Older scripts did not keep track of the donor/acceptor background
+% this variable will allow this script to be used to generate histograms
+% from older data
 number_columns = input(...
     'How many columns do the trace files have? (4 or  6)');
     if isempty(number_columns)
@@ -42,7 +48,7 @@ XC_counter=0;
 cr=[];u=1;
 
 A=dir('*tr*.dat')
-numberfiles=length(A)
+numberfiles=length(A) 
 
 nm=0;
 
@@ -52,8 +58,7 @@ while (nm<numberfiles-0)
     fname=A(nm).name(1:end-4);
     disp(fname)
     fid=fopen(A(nm).name,'r');
-    
-    if number_columnes=4;
+    if number_columnes == 4
         dummy = fscanf(fid, '%g %g %g %g', [4 inf]);
     else
         dummy = fscanf(fid,'%g %g %g %g %g %g',[6 inf]);
@@ -84,11 +89,11 @@ while (nm<numberfiles-0)
 
     s=0;
 
-    for N=n;
+    for N=n
         s=s+1;
         lower_bound=max(M,N+1);
 
-        for i = lower_bound:length-N;
+        for i = lower_bound:length-N
             I_f_don(i,s)=(1/N)*sum(donor((i-N):i-1));
             I_b_don(i,s)=(1/N)*sum(donor(i+1:i+N));
     
@@ -108,7 +113,7 @@ while (nm<numberfiles-0)
         f(i,s)=0;b(i,s)=0;
         fgamma(i,s)=0;bgamma(i,s)=0;
         ffret(i,s)=0;bfret(i,s)=0;
-            for j=0:M-1;
+            for j=0:M-1
                 j;
                 f(i,s)=f(i,s)+((donor(i-j)-I_f_don((i-j),s))^2+(acceptor(i-j)-I_f_acc((i-j),s))^2);
                 b(i,s)=b(i,s)+((donor(i+j)-I_b_don((i+j),s))^2+(acceptor(i+j)-I_b_acc((i+j),s))^2); 
@@ -143,7 +148,7 @@ while (nm<numberfiles-0)
     I_d_gamma_filter=0;
     fret_filter=0;
 
-    for k=1:s;
+    for k=1:s
         I_d_filter= I_d_filter + f(1:range,k).* I_f_don(1:range,k) + b(1:range,k).*I_b_don(1:range,k);
         I_a_filter= I_a_filter + f(1:range,k).* I_f_acc(1:range,k) + b(1:range,k).*I_b_acc(1:range,k);
         I_d_gamma_filter= I_d_gamma_filter + fgamma(1:range,k).* I_f_don_gamma(1:range,k) + bgamma(1:range,k).*I_b_don_gamma(1:range,k);
@@ -165,11 +170,11 @@ while (nm<numberfiles-0)
         end
     end
 
-    [n_f,x]=hist(fret,gap);          
-    [n_fs,x]=hist(fret_smooth,gap);  
-    [n_F,x]=hist(FRET_filter,gap);  
-    [n_F_gamma,x]=hist(FRET_filter_gamma,gap);  
-    [n_fret,x]=hist(fret_filter,gap);  
+    [n_f,~]=histogram(fret,gap);          
+    [n_fs,~]=histogram(fret_smooth,gap);  
+    [n_F,~]=histogram(FRET_filter,gap);  
+    [n_F_gamma,~]=histogram(FRET_filter_gamma,gap);  
+    [n_fret,x]=histogram(fret_filter,gap);  
     % plot(x,n_F/sum(n_F),'r');hold on
 
         Ave_donor=mean(donor);        Ave_donor_filter=nanmean(I_d_filter);
@@ -190,13 +195,13 @@ while (nm<numberfiles-0)
         delta_donor_filter(isnan(delta_donor_filter))=0; 
         delta_acceptor_filter(isnan(delta_acceptor_filter))=0;
 
-        if range > temp_end;
-            for tau=0:range,
+        if range > temp_end
+            for tau=0:range
             normalize_number=0;
             sum_tau=0;
             sum_tau_filter=0;
             sum_tau_smooth=0;
-                for t=1:range-tau,
+                for t=1:range-tau
                     sum_tau=sum_tau+(delta_donor(t)*delta_acceptor(t+tau));
                     sum_tau_filter=sum_tau_filter +(delta_donor_filter(t)*delta_acceptor_filter(t+tau));
                     sum_tau_smooth=sum_tau_smooth +(delta_smooth_d(t)*delta_smooth_a(t+tau));
@@ -213,70 +218,72 @@ while (nm<numberfiles-0)
                 end
             end
 
-    h1=subplot(5,2,[1,2,3,4]);
+            h1=subplot(5,2,[1,2,3,4]);
 
-    cla(h1);cla(h2);cla(h3);cla(h4);    
-    patchline(time,donor,'edgecolor','g','edgealpha',0.4);hold on;
-    patchline(time(1:range),I_d_filter(1:range), 'linewidth',1.5,'edgecolor','g');hold on;
-    patchline(time,acceptor,'edgecolor','r','edgealpha',0.4);hold on;
-    patchline(time(1:range),I_a_filter(1:range), 'linewidth',1.5,'edgecolor','r');hold on;
-    patchline(time,150+donor+acceptor,'edgecolor','k','edgealpha',0.4);hold on;
-    patchline(time(1:range),150+I_a_filter(1:range)+I_d_filter(1:range), 'linewidth',1.5,'edgecolor','k');
-    title(['File: ' fname '   Molecule:' int2str(nm)]);
-    ylim([0 20+max(150+I_a_filter(1:range)+I_d_filter(1:range))]);
-    xlim([min(time) max(time)]);
-    grid on; zoom on;
+            cla(h1);cla(h2);cla(h3);cla(h4);    
+            patchline(time,donor,'edgecolor','g','edgealpha',0.4);hold on;
+            patchline(time(1:range),I_d_filter(1:range), 'linewidth',1.5,'edgecolor','g');hold on;
+            patchline(time,acceptor,'edgecolor','r','edgealpha',0.4);hold on;
+            patchline(time(1:range),I_a_filter(1:range), 'linewidth',1.5,'edgecolor','r');hold on;
+            patchline(time,150+donor+acceptor,'edgecolor','k','edgealpha',0.4);hold on;
+            patchline(time(1:range),150+I_a_filter(1:range)+I_d_filter(1:range), 'linewidth',1.5,'edgecolor','k');
+            title(['File: ' fname '   Molecule:' int2str(nm)]);
+            ylim([0 20+max(150+I_a_filter(1:range)+I_d_filter(1:range))]);
+            xlim([min(time) max(time)]);
+            grid on; zoom on;
 
-    h2=subplot(5,2,[5,6]);
-    patchline(time,fret,'edgecolor','c','edgealpha',0.5);hold on;
-    patchline(time(1:range),FRET_filter(1:range),'linewidth',1.5,'edgecolor','b');hold on;
-    ylim([-0.02 1.02]);
-    xlim([min(time) max(time)]);
-    grid on; zoom on;
-    linkaxes([h1,h2], 'x');
+            h2=subplot(5,2,[5,6]);
+            patchline(time,fret,'edgecolor','c','edgealpha',0.5);hold on;
+            patchline(time(1:range),FRET_filter(1:range),'linewidth',1.5,'edgecolor','b');hold on;
+            ylim([-0.02 1.02]);
+            xlim([min(time) max(time)]);
+            grid on; zoom on;
+            linkaxes([h1,h2], 'x');
 
-    [~, indexAtMaxY] = max(n_f/sum(n_f));
-    h3=subplot(5,2,[7,9]);
-    plot(gap,n_f/sum(n_f),'*'); hold on;hold on;
-    h4=subplot(5,2,[7,9]);
-    plot(gap,N_His_f./sum(N_His_f),'r');
-    xlim([-0.02 1.02]);
-    legend(sprintf('Peak Center = %0.3f',gap(indexAtMaxY(1))));
-    
-    h5=subplot(5,2,[8,10]);
-    cla(h5);
-    plot(d_X_a_old(1:temp_end),'*b');hold on;
-    plot(N_total_XC_old/XC_counter,'r');
-    ylim([-0.6 0.2]);
-    legend(sprintf('XC magnitude = %0.3f',d_X_a_old(2)));
+            [~, indexAtMaxY] = max(n_f/sum(n_f));
+            h3=subplot(5,2,[7,9]);
+            plot(gap,n_f/sum(n_f),'*'); hold on;hold on;
+            h4=subplot(5,2,[7,9]);
+            plot(gap,N_His_f./sum(N_His_f),'r');
+            xlim([-0.02 1.02]);
+            legend(sprintf('Peak Center = %0.3f',gap(indexAtMaxY(1))));
 
-
-    option=input('include (enter), skip (s) ', 's');
-    if option=='s'
-        N_His_f=N_His_f;
-        N_His_fs=N_His_fs;
-        N_His_F=N_His_F;
-        N_His_F_gamma=N_His_F_gamma;
-        N_His_fret=N_His_fret;
-    else
-        N_His_f=N_His_f+n_f./sum(n_f);
-        N_His_fs=N_His_fs+n_fs./sum(n_fs);
-        N_His_F=N_His_F+n_F./sum(n_F); 
-        if donorgamma(1)>0 N_His_F_gamma=N_His_F_gamma+n_F_gamma./sum(n_F_gamma); end
-        N_His_fret=N_His_fret+n_fret./sum(n_fret);
-%%%%%%%%%%%%%%% CORRELATION  %%%%%%%%%%%%%%%%
-
-        N_total_XC=N_total_XC + d_X_a(1:temp_end);
-        N_total_XC_filter=N_total_XC_filter + d_X_a_filter(1:temp_end);
-        N_total_XC_smooth=N_total_XC_smooth + d_X_a_smooth(1:temp_end);
-        N_total_XC_old=N_total_XC_old + d_X_a_old(1:temp_end);
-        XC_counter=XC_counter+1;
+            h5=subplot(5,2,[8,10]);
+            cla(h5);
+            plot(d_X_a_old(1:temp_end),'*b');hold on;
+            plot(N_total_XC_old/XC_counter,'r');
+            ylim([-0.6 0.2]);
+            legend(sprintf('XC magnitude = %0.3f',d_X_a_old(2)));
 
 
-    end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            option=input('include (enter), skip (s) ', 's');
+            if option=='s'
+                N_His_f=N_His_f;
+                N_His_fs=N_His_fs;
+                N_His_F=N_His_F;
+                N_His_F_gamma=N_His_F_gamma;
+                N_His_fret=N_His_fret;
+            else
+                N_His_f=N_His_f+n_f./sum(n_f);
+                N_His_fs=N_His_fs+n_fs./sum(n_fs);
+                N_His_F=N_His_F+n_F./sum(n_F); 
+                if donorgamma(1)>0 
+                    N_His_F_gamma=N_His_F_gamma+n_F_gamma./sum(n_F_gamma); 
+                end
+                N_His_fret=N_His_fret+n_fret./sum(n_fret);
+        %%%%%%%%%%%%%%% CORRELATION  %%%%%%%%%%%%%%%%
 
-    end
+                N_total_XC=N_total_XC + d_X_a(1:temp_end);
+                N_total_XC_filter=N_total_XC_filter + d_X_a_filter(1:temp_end);
+                N_total_XC_smooth=N_total_XC_smooth + d_X_a_smooth(1:temp_end);
+                N_total_XC_old=N_total_XC_old + d_X_a_old(1:temp_end);
+                XC_counter=XC_counter+1;
+
+
+            end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        end
 end
 %%%%%        TIME                     No filter                  old normalization              filtered data  
 output=[timeunit*(0:temp_end-1)' (N_total_XC/XC_counter)' (N_total_XC_old/XC_counter)' (N_total_XC_filter/XC_counter)'];
