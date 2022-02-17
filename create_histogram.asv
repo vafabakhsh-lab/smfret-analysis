@@ -27,7 +27,7 @@ timeunit=input('Time unit: [default=0.03 sec] ');
 % this variable will allow this script to be used to generate histograms
 % from older data
 number_columns = input(...
-    'How many columns do the trace files have? (4 or  6)');
+    'How many columns do the trace files have (4 or  6)?    ');
     if isempty(number_columns)
         number_columns=6;
     end
@@ -44,7 +44,7 @@ N_total_XC=zeros(1,temp_end);
 N_total_XC_old=zeros(1,temp_end);
 N_total_XC_filter=zeros(1,temp_end);
 N_total_XC_smooth=zeros(1,temp_end);
-XC_counter=0;
+particle_count=0;
 cr=[];u=1;
 
 A=dir('*tr*.dat')
@@ -58,7 +58,7 @@ while (nm<numberfiles-0)
     fname=A(nm).name(1:end-4);
     disp(fname)
     fid=fopen(A(nm).name,'r');
-    if number_columnes == 4
+    if number_columns == 4
         dummy = fscanf(fid, '%g %g %g %g', [4 inf]);
     else
         dummy = fscanf(fid,'%g %g %g %g %g %g',[6 inf]);
@@ -110,9 +110,12 @@ while (nm<numberfiles-0)
 
 
         for i = lower_bound:length-M-N+1
-        f(i,s)=0;b(i,s)=0;
-        fgamma(i,s)=0;bgamma(i,s)=0;
-        ffret(i,s)=0;bfret(i,s)=0;
+        f(i,s)=0;
+        b(i,s)=0;
+        fgamma(i,s)=0;
+        bgamma(i,s)=0;
+        ffret(i,s)=0;
+        bfret(i,s)=0;
             for j=0:M-1
                 j;
                 f(i,s)=f(i,s)+((donor(i-j)-I_f_don((i-j),s))^2+(acceptor(i-j)-I_f_acc((i-j),s))^2);
@@ -170,11 +173,11 @@ while (nm<numberfiles-0)
         end
     end
 
-    [n_f,~]=histogram(fret,gap);          
-    [n_fs,~]=histogram(fret_smooth,gap);  
-    [n_F,~]=histogram(FRET_filter,gap);  
-    [n_F_gamma,~]=histogram(FRET_filter_gamma,gap);  
-    [n_fret,x]=histogram(fret_filter,gap);  
+    [n_f,~]=hist(fret,gap);          
+    [n_fs,~]=hist(fret_smooth,gap);  
+    [n_F,~]=hist(FRET_filter,gap);  
+    [n_F_gamma,~]=hist(FRET_filter_gamma,gap);  
+    [n_fret,x]=hist(fret_filter,gap);  
     % plot(x,n_F/sum(n_F),'r');hold on
 
         Ave_donor=mean(donor);        Ave_donor_filter=nanmean(I_d_filter);
@@ -251,7 +254,7 @@ while (nm<numberfiles-0)
             h5=subplot(5,2,[8,10]);
             cla(h5);
             plot(d_X_a_old(1:temp_end),'*b');hold on;
-            plot(N_total_XC_old/XC_counter,'r');
+            plot(N_total_XC_old/particle_count,'r');
             ylim([-0.6 0.2]);
             legend(sprintf('XC magnitude = %0.3f',d_X_a_old(2)));
 
@@ -277,7 +280,9 @@ while (nm<numberfiles-0)
                 N_total_XC_filter=N_total_XC_filter + d_X_a_filter(1:temp_end);
                 N_total_XC_smooth=N_total_XC_smooth + d_X_a_smooth(1:temp_end);
                 N_total_XC_old=N_total_XC_old + d_X_a_old(1:temp_end);
-                XC_counter=XC_counter+1;
+                
+                
+                particle_count=particle_count+1;
 
 
             end
@@ -285,8 +290,14 @@ while (nm<numberfiles-0)
 
         end
 end
+
+% Normalize data by particle counts
+N_total_XC = N_total_XC/particle_count;
+N_total_XC_old = N_total_XC_old/particle_count;
+N_total_XC_filter = N_total_XC_filter/particle_count;
+
 %%%%%        TIME                     No filter                  old normalization              filtered data  
-output=[timeunit*(0:temp_end-1)' (N_total_XC/XC_counter)' (N_total_XC_old/XC_counter)' (N_total_XC_filter/XC_counter)'];
+output=[timeunit*(0:temp_end-1)' (N_total_XC)' (N_total_XC_old)' (N_total_XC_filter)'];
 time_fname=['total_XC.dat'];
 save(time_fname,'output','-ascii') ;
 

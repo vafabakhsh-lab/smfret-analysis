@@ -1,4 +1,4 @@
-function histogram_manual_range;
+function trace_selection
 %by Hajin to build FRET histogram of selected range of traces with background correction 1/7/2010
 %updated to be able to 1) delete the most recent selection, 2) export
 %raw data, and 3) go back one molecule 1/20/2010
@@ -17,6 +17,9 @@ function histogram_manual_range;
 
 % Excess code removed and variables renamed by Michael Schamber on Feb 2022
 % additional comments made to try and explain code more clearly
+
+% Suppress no terminal ; error/warning
+%#ok<*NOPRT>
 
 close all;
 fclose('all');
@@ -40,7 +43,7 @@ fname=input('index # of filename [default=1]  ');
    	fname=1;
 	end
 fname=num2str(fname);
-filename=['film' fname '.traces']
+filename=['film' fname '.traces'] 
 fid=fopen(['film' fname '.traces'],'r');
 
 A=dir;
@@ -130,7 +133,8 @@ j=0;
     while(j<Ntraces/2)
         j=j+1;
         
-        clf
+        clf % clear figure to prevent lag caused by plotting
+        
         % plot donor, acceptor, and FRET
         h1=subplot(5,1,[1,2,3]);
         plot(time,donor(j,:),'g',time,(acceptor(j,:))-abs(leakage*donor(j,:)),'r', time,(acceptor(j,:)+donor(j,:)+200), 'k' );
@@ -190,9 +194,9 @@ j=0;
                 else
                     if option=='s'
                     disp('Click twice to select the range (press enter to skip)');
-                    [x,y]=ginput(2);
+                    [x,~]=ginput(2);
                     
-                    if isempty(x) | size(x)==1
+                    if isempty(x) || size(x)==1
                         x=ones(2);
                     else
                         x(1)=round(x(1)/timeunit);
@@ -230,8 +234,8 @@ j=0;
                     
                     if bg_definition
                         disp('Click 4X  to select the range to calculate background (enter to skip)');
-                        [xbc3,ybc3]=ginput(2);
-                        [xbc5,ybc5]=ginput(2);
+                        [xbc3,~]=ginput(2);
+                        [xbc5,~]=ginput(2);
                        
                         if xbc3(2)> xbc3(1)
                             xbc3(1)=round(xbc3(1)/timeunit);
@@ -260,7 +264,9 @@ j=0;
                    %%%%%% Either manually enter GAMMA or click 4 times (donor low, donor high then acceptor low, acceptor high)
                    %%%%%%%%%%% let the program measure Gammma. If you don't know Gamma put 0.%%%
                    
-                   gamma=0;deltaA=0;deltaD=0; 
+                   gamma=0;
+                   deltaA=0;
+                   deltaD=0; 
 
                      fid = fopen(['gamma' fname '.dat'],'a+');
                      fprintf(fid,'%4.3f\n', gamma);
