@@ -27,7 +27,7 @@ timeunit=input('Time unit: [default=0.03 sec] ');
 % this variable will allow this script to be used to generate histograms
 % from older data
 number_columns = input(...
-    'How many columns do the trace files have (4 or  6)?    ');
+    'How many columns do the trace files have (4 or  6)?  ');
     if isempty(number_columns)
         number_columns=6;
     end
@@ -295,6 +295,12 @@ end
 N_total_XC = N_total_XC/particle_count;
 N_total_XC_old = N_total_XC_old/particle_count;
 N_total_XC_filter = N_total_XC_filter/particle_count;
+
+N_His_f = N_His_f/particle_count;
+N_His_fs = N_His_fs/particle_count;
+N_His_fret = N_His_fret/particle_count;
+N_His_F = N_His_F/particle_count;
+N_His_F_gamma = N_His_F_gamma/particle_count;
 
 %%%%%        TIME                     No filter                  old normalization              filtered data  
 output=[timeunit*(0:temp_end-1)' (N_total_XC)' (N_total_XC_old)' (N_total_XC_filter)'];
