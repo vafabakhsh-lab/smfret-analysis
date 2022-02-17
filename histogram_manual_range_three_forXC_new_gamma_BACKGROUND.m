@@ -15,10 +15,13 @@ function histogram_manual_range;
 
 % Modified by Reza March 31 to correct for Gamma
 
+% Excess code removed and variables renamed by Michael Schamber on Feb 2022
+% additional comments made to try and explain code more clearly
+
 close all;
 fclose('all');
 clear all;
-% input file directory and file name to be analyzed.
+% request file directory of data to be analyzed
 pth=input('Directory: ', 's'); % 's' - autoconverts input to string
 cd(pth);
 
@@ -78,28 +81,7 @@ was_deleted=0;
 
 
 end_of_directory=0;
-%  while (i <  nf)
-%     
-%      i=i+1;
-%      if A(i).isdir == 0
-%     A(i).name
-%     A(i).name(1:end-7)
-%     if A(i).name(end-6:end)=='.traces'
-%         fname=A(i).name(1:end-7);
-%         fid=fopen(A(i).name,'r');
-%     else
-%         while A(i).name(end-6:end)~='.traces'
-%             i=i+1;
-%             if i>length(A)
-%                 end_of_directory=1;
-%                 break;
-%             end
-%         end
-%     end
 
-%     if end_of_directory
-%         break;
-%     end
     
     len=fread(fid,1,'int32'); 
     disp(['The len of the time traces is ',num2str(len)]);
@@ -239,9 +221,9 @@ j=0;
                     number_of_frames=x(2)-x(1)+1;
                     was_deleted=0;
                     
-                     %%%%%%%%%%%%%%
+
                     x(2)=x(2)-mod((x(2)-x(1)),sm);
-                    %%%%%%%%%%%%%
+
                     
 
                     % Manual background selection
@@ -279,37 +261,7 @@ j=0;
                    %%%%%%%%%%% let the program measure Gammma. If you don't know Gamma put 0.%%%
                    
                    gamma=0;deltaA=0;deltaD=0; 
-%                    gc=input('Manual (enter) or automatic GAMMA factor? ', 's');
-%                     if isempty(gc)
-%                          gamma=input('What is the gamma factor? ');
-%                          if isempty (gamma)
-%                              gamma=0;
-%                          end
-%                     else
-%                         disp('Click 4X to select the DONOR range to calculate gamma '); 
-%                         [xdon1,ydon1]=ginput(2);
-%                         [xdon2,ydon2]=ginput(2);
-%                         xdon1(1)=round(xdon1(1)/timeunit);  xdon1(2)=round(xdon1(2)/timeunit);
-%                         xdon2(1)=round(xdon2(1)/timeunit);  xdon2(2)=round(xdon2(2)/timeunit);
-%                         D1=mean(donor(j,min(xdon1(1),xdon1(2)): max(xdon1(1),xdon1(2))));
-%                         D2=mean(donor(j,min(xdon2(1),xdon2(2)): max(xdon2(1),xdon2(2))));
-%                         deltaD=abs(D1-D2);
-%                         
-%                         
-%                
-%                         disp('Click 4X to select the ACCEPTOR range to calculate gamma '); 
-%                         [xacc1,yacc1]=ginput(2);
-%                         [xacc2,yacc2]=ginput(2);
-%                         xacc1(1)=round(xacc1(1)/timeunit);  xacc1(2)=round(xacc1(2)/timeunit);
-%                         xacc2(1)=round(xacc2(1)/timeunit);  xacc2(2)=round(xacc2(2)/timeunit);
-%                         acceptorleak=acceptor-abs(leakage*donor); %leakage corrected acceptor
-%                         A1=mean(acceptorleak(j,min(xacc1(1),xacc1(2)): max(xacc1(1),xacc1(2))));
-%                         A2=mean(acceptorleak(j,min(xacc2(1),xacc2(2)): max(xacc2(1),xacc2(2))));
-%                         deltaA=abs(A1-A2);
-%                           
-%                         gamma=deltaA/deltaD;
-%                         disp(['Gamma factor is ',num2str(gamma)]);
-%                     end
+
                      fid = fopen(['gamma' fname '.dat'],'a+');
                      fprintf(fid,'%4.3f\n', gamma);
                      fclose(fid);
@@ -318,12 +270,7 @@ j=0;
                     
                     if number_of_frames>1
                         
-%                         for k=0:(x(2)-x(1)-sm)/sm;
-%                             temp_donorsm=mean(donor(j,(x(1)+sm*k):(x(1)+sm*(k+1))))-bg_donor;
-%                             temp_acceptorsm=mean(acceptor(j,(x(1)+sm*k):(x(1)+sm*(k+1))))-bg_acceptor;
-%                             allfretsm(k+1)=gamma.*(temp_acceptorsm-leakage*temp_donorsm)/(gamma.*temp_acceptorsm+(temp_donorsm));
-% %                             saved_frames(1,total_N_of_frames+k)=(temp_acceptor-leakage*temp_donor)/(temp_acceptor+temp_donor);
-%                         end
+
                         temp_donorsm=smooth(donor(j,x(1):x(2)),3)-bg_donor;
                         temp_acceptorsm=smooth(acceptor(j,x(1):x(2)),3)-bg_acceptor;
                         allfretsm=(temp_acceptorsm-abs(leakage.*temp_donorsm))./(temp_acceptorsm+temp_donorsm);
@@ -337,11 +284,7 @@ j=0;
                          save(time_fname,'output','-ascii') ;
 
                         
-                         %%%%%%%%%%%%%%%%%%SM average.
-%                         allfret=saved_frames(1,total_N_of_frames+1:total_N_of_frames+number_of_frames);
-%                         fid = fopen(['selectedFRET_SMave' fname '.dat'],'a+');
-%                         fprintf(fid, '%4.4f\n', allfretsm);
-%                          fclose(fid);
+
                         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                         mean_donor=mean(donor(j,x(1):x(2)))-bg_donor;
                         mean_acceptor=mean(acceptor(j,x(1):x(2)))-bg_acceptor;
@@ -350,8 +293,7 @@ j=0;
                         selfret=(acceptor(j,x(1):x(2))-bg_acceptor-abs(leakage*(donor(j,x(1):x(2)))))./((donor(j,x(1):x(2)))+acceptor(j,x(1):x(2))-bg_donor-bg_acceptor);
                         seltotal=donor(j,x(1):x(2))+acceptor(j,x(1):x(2));
                         totalI=(mean_acceptor+mean_donor);
-                        %%%%%%%%%%%%%%%%%%I just added these 4 lines.
-%                         allfret=saved_frames(1,total_N_of_frames+1:total_N_of_frames+number_of_frames);
+
                         fid = fopen(['selectedFRETavseg' fname '.dat'],'a+');
                         fprintf(fid, '%4.0f\t %5.1f\t  %4.3f\t %4.3f\n', j,totalI,allfret,gamma);
                          fclose(fid);
@@ -362,25 +304,19 @@ j=0;
                         fclose(fid);
                         
                          
-                       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                       %%%This is the selected traces that we will use for
-                       %%%future analysis. the columns are: TIME, DONOR
-                       %%%(background corrected), Acceptor (background and
-                       %%%leakage corrected) and gamma*DONOR. In case of
-                       %%%Gamma, FRET=A/(A+gamma*D).
-                        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%This is the selected traces that we will use for future analysis. 
+%%% the columns are: TIME, DONOR (background corrected), Acceptor 
+%%% (background and leakage corrected) and gamma*DONOR. In case of
+%%% Gamma, FRET=A/(A+gamma*D).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
                         ttsize=max(size(time(x(1):x(2))));
                         fname5=[fname ' tr' num2str(j) '.dat'];
                         output5=[time(x(1):x(2))'  (donor(j,x(1):x(2))-bg_donor)' (acceptor(j,x(1):x(2))-abs(leakage*(donor(j,x(1):x(2))))-bg_acceptor)' gamma*(donor(j,x(1):x(2))-bg_donor)' bg_donor*ones(ttsize,1) bg_acceptor*ones(ttsize,1)];
                         save(fname5,'output5','-ascii') ;
                         
-%                          fname1=[fname ' tr' num2str(j) '.dat'];
-%                          output=[time(x(1):x(2))' (donor(j,x(1):x(2))-bg_donor)' gamma.*((acceptor(j,x(1):x(2))-bg_acceptor)-leakage*(donor(j,x(1):x(2))-bg_donor))'];
-%                          save(fname1,'output','-ascii') ;
-%                          plot(time,(donor(j,:)-bg_donor),'g',time,gamma.*((acceptor(j,:)-bg_acceptor)-leakage*(donor(j,:)-bg_donor)),'r', time,(gamma.*acceptor(j,:)+donor(j,:)+1000), 'k' );
 
-                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                         figure;hist(allfret)
                         total_N_of_frames=total_N_of_frames+number_of_frames;
                         allfret=[];
                         
@@ -397,52 +333,4 @@ j=0;
     end
     
 
-% end
-% end
-% disp([num2str(total_N_of_frames),' frames are selected']);
 
-% result_frames=zeros(1,total_N_of_frames);
-% for ii=1:total_N_of_frames
-%     result_frames(1,ii)=saved_frames(1,ii);
-% end
-
-
-% histogram_axis=-0.2:increment:1.5;
-% hist(result_frames(1,:),histogram_axis);
-% title('FRET histogram');
-% 
-% change_increment='y';
-% 
-% while(change_increment=='y')
-%     
-%     change_increment=input('Change increment? [default=yes] ','s');
-%     if isempty(change_increment)
-%         change_increment='y';
-%     end
-%     
-%     if change_increment=='y'
-%         increment=input('Increment? [default=0.025] ');
-%         if isempty(increment)
-%             increment=0.025;
-%         end    
-%     end
-%     
-%     histogram_axis=-0.2:increment:1.5;
-%     hist(result_frames,histogram_axis);
-%     title('FRET histogram');
-%     
-% end
-% 
-% [result,xout]=hist(result_frames(1,:),histogram_axis);
-% histogram_bins=round(1.4/increment);
-% result_to_save=zeros(histogram_bins,2);
-% for i=1:histogram_bins
-%     result_to_save(i,1)=xout(i);
-%     result_to_save(i,2)=result(i);
-% end
-% save(['histogram' fname '.txt'],'result_to_save','-ascii');
-% 
-% result_frames=result_frames.';
-% save(['selected'_frames' fname '.txt'],'result_frames','-ascii');
-
-% fclose('all');

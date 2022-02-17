@@ -1,21 +1,9 @@
-% loc=load('L:\data\9-April2014\5-Apil21\#2-CH2-m2m2SNAP only-0glut\film34.pks');
-%gam=load('L:\data\9-April2014\5-Apil21\#2-CH2-m2m2SNAP only-0glut\selectedFRETavseg34.dat');
-%num=gam(:,1);
-%for i = 1:100;xc=loc(num(i),1);yc=loc(num(i),3);plot(xc,yc,'.');if gam(i,4)>0;text(xc+1,yc,num2str(gam(i,4)));end;hold on;end
 
 close all;
 fclose('all');
 clear all;
 
-%    dummy=load('D:\analysis\mGlu\m3-0Ca\film12\New folder\1.dat');      
-% timeunit=1;
-% time=dummy(:,1)*timeunit;
-% donor=dummy(:,2);       
-% acceptor=dummy(:,3);
 
-% clear
-% donor=ones(200,1)+0.1*rand(200,1);donor (50:52,1)=0.4;
-% acceptor=2*ones(200,1)+0.1*rand(200,1);acceptor (50:52,1)=2.4;
 
 path=input('where are the selected traces?  ', 's');
 cd(path);
@@ -153,12 +141,6 @@ while (nm<numberfiles-0)
     end
 
 
-    % f=f'; b=b';
-    % 
-    % range=max(size(f));
-    % I_d_filter=f(1:range).* I_f_don(1:range) + b(1:range).*I_b_don(1:range);
-    % I_a_filter=f(1:range).* I_f_acc(1:range) + b(1:range).*I_b_acc(1:range);
-    % 
 
     FRET_filter=I_a_filter./(I_a_filter+I_d_filter);
     FRET_filter_gamma=I_a_filter./(I_a_filter+I_d_gamma_filter); 
@@ -213,8 +195,7 @@ while (nm<numberfiles-0)
                     d_X_a(tau+1)=NaN;
                 else            
                     d_X_a_old(tau+1)=sum_tau/(normalize_number)/std_donor/std_acceptor;
-                    %d_X_a_smooth(tau+1)=sum_tau_filter/(normalize_number)/Ave_donor_filter/Ave_acceptor_filter;
-                    %d_X_a_filter(tau+1)=sum_tau_filter/(normalize_number)/(Ave_donor_filter+Ave_acceptor_filter);
+
                     d_X_a(tau+1)=sum_tau/(normalize_number)/(Ave_donor+Ave_acceptor);
                     d_X_a_smooth(tau+1)=sum_tau_smooth/(normalize_number)/(Ave_smooth_a+Ave_smooth_a);
                     d_X_a_filter(tau+1)=sum_tau_filter/(normalize_number)/(Ave_donor_filter+Ave_acceptor_filter);
@@ -222,9 +203,7 @@ while (nm<numberfiles-0)
             end
 
     h1=subplot(5,2,[1,2,3,4]);
-    % plot(donor,'g');plot(I_d_filter(1:range));hold on;
-    %plot(acceptor,'r','LineStyle','-');hold on;plot(I_a_filter(1:range),'k')
-    %plot(fret);hold on;plot(FRET_filter,'r')
+
     cla(h1);cla(h2);cla(h3);cla(h4);    
     patchline(time,donor,'edgecolor','g','edgealpha',0.4);hold on;
     patchline(time(1:range),I_d_filter(1:range), 'linewidth',1.5,'edgecolor','g');hold on;
@@ -310,25 +289,6 @@ csvwrite('total_FRET.csv', output);
 
 
 
-
-
-% h1=subplot(3,2,[1,2])
-% plot(donor,'g');hold on;plot(I_d_filter(1:range));hold on;
-% plot(acceptor,'r');hold on;plot(I_a_filter(1:range),'k')
-
-% h2=subplot(3,2,[3,4])
-% plot(fret);hold on;plot(FRET_filter,'r')
-% 
-% linkaxes([h1,h2], 'x');
-% 
-% 
-% [n_f,x]=hist(fret,0:0.04:1);
-% subplot(3,2,5)
-% plot(x,n_f/sum(n_f),'*'); hold on;
-% 
-% [n_F,x]=hist(FRET_filter,0:0.04:1)
-% % subplot(3,2,6)
-% plot(x,n_F/sum(n_F),'r')
 
 
 
