@@ -20,9 +20,6 @@ timeunit=input('Time unit: [default=0.03 sec] ');
         timeunit=0.03;
     end
     
-% Older scripts did not keep track of the donor/acceptor background
-% this variable will allow this script to be used to generate histograms
-% from older data
 number_columns = input(...
     'How many columns do the trace files have? (4 or  6)');
     if isempty(number_columns)
@@ -55,6 +52,7 @@ while (nm<numberfiles-0)
     fname=A(nm).name(1:end-4);
     disp(fname)
     fid=fopen(A(nm).name,'r');
+    
     if number_columnes=4;
         dummy = fscanf(fid, '%g %g %g %g', [4 inf]);
     else
