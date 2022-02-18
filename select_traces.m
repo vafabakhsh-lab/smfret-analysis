@@ -19,7 +19,7 @@ function trace_selection
 % additional comments made to try and explain code more clearly
 
 % Suppress no terminal ; error/warning
-%#ok<*NOPRT>
+%#ok<*NOPTS>
 
 close all;
 fclose('all');
@@ -105,21 +105,16 @@ for j=1:(Ntraces/2)
     donor(j,:)=Data(j*2-1,:);
     acceptor(j,:)=Data(j*2,:);
 end
-
+%%%%%%% This is where I would end the 'read data'
+% It should result in only the donor and acceptor variables being output
 % define FRET
 fret=zeros(Ntraces/2,len);
 for j=1:Ntraces/2
     for k=1:len
-        if donor(j,k)+acceptor(j,k)==0
-            fret(j,k)=0.5;
+        if donor(j,k)+acceptor(j,k)==0 % this prevents dividing by 0
+            fret(j,k)=0.001;
         else
             fret(j,k)=gamma.*(acceptor(j,k)-leakage*donor(j,k))/(donor(j,k)+gamma.*acceptor(j,k));
-        end
-        if fret(j,k)>1.5
-            fret(j,k)=1.5;
-        end
-        if fret(j,k)<-0.5
-            fret(j,k)=-0.5;
         end
     end
 end
@@ -154,19 +149,16 @@ while(j<Ntraces/2)
     grid on;
     zoom on;
     linkaxes([h1,h2], 'x');
-    %frames_to_avg=3;
+
 
     option=input('skip (enter), Work on this trace(s), go back (b), save trace (t) ','s');
+    
     if option=='t'
         fname1=[fname ' tr' num2str(j-1) '.dat'];
         output=[time' donor(j,:)' acceptor(j,:)'];
         save(fname1,'output','-ascii') ;
         j=j-1;
     else
-
-%         if option=='s'
-%             disp('Molecule skipped');
-%         else
         if option=='b'
             if j==1
                 disp('This is the first molecule');
@@ -176,52 +168,35 @@ while(j<Ntraces/2)
                 j=j-2;
             end
         else
-            if option=='c'
-                if (j==1 && i==3)
-                    disp('This is the first molecule');
-                else
-                    if number_of_frames==0
-                        disp('There is no selection to delete');
-                    else
-                        if was_deleted==0
-                            total_N_of_frames=total_N_of_frames-number_of_frames;                        
-                            disp('Previous selection was cancelled');
-                            was_deleted=1;
-                        else
-                            disp('Previous selection was already cancelled');
-                        end
-                    end
-                end
-                j=j-1;
-            else
-                if option=='s'
+
+            if option=='s'
                 disp('Click twice to select the range (press enter to skip)');
                 [x,~]=ginput(2);
 
-                if isempty(x) || size(x)==1
-                    x=ones(2);
-                else
-                    x(1)=round(x(1)/timeunit);
-                    x(2)=round(x(2)/timeunit);
-                    if x(1)<1
-                        x(1)=1;
-                    end
-                    if x(2)<1
-                        x(2)=1;
-                    end
-                    if x(1)>len
-                        x(1)=len;
-                    end
-                    if x(2)>len
-                        x(2)=len;
-                    end
+            if isempty(x) || size(x)==1
+                x=ones(2);
+            else
+                x(1)=round(x(1)/timeunit);
+                x(2)=round(x(2)/timeunit);
+                if x(1)<1
+                    x(1)=1;
                 end
+                if x(2)<1
+                    x(2)=1;
+                end
+                if x(1)>len
+                    x(1)=len;
+                end
+                if x(2)>len
+                    x(2)=len;
+                end
+            end
 
-                if x(1)>x(2)
-                    temp=x(1);
-                    x(1)=x(2);
-                    x(2)=temp;
-                end
+            if x(1)>x(2)
+                temp=x(1);
+                x(1)=x(2);
+                x(2)=temp;
+            end
 
                 disp(['Selected range is frame ',num2str(x(1)),' to frame ',num2str(x(2))]);
                 number_of_frames=x(2)-x(1)+1;
@@ -335,11 +310,11 @@ while(j<Ntraces/2)
                     end
                 end
 
-                end
             end
         end
     end
 end
+
     
 
 
