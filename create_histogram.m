@@ -324,13 +324,3 @@ csvwrite('total_FRET.csv', output);
 
 
 
-
-
-
-%%%% ChangeLog %%%%
-% 4/2/2019 Michael Schamber
-% Changed plotting windows to give extra panel to XC and changed limits so
-% the XC plot is more visible. This required making the FRET trace plot a
-% little thinner so that it fits. The FRET histogram plot remains the same
-% size.
-
