@@ -1,22 +1,5 @@
 function trace_selection
-%by Hajin to build FRET histogram of selected range of traces with background correction 1/7/2010
-%updated to be able to 1) delete the most recent selection, 2) export
-%raw data, and 3) go back one molecule 1/20/2010
 
-% now modified by reza to get specific file and changed the controls
-% this is the las version. It averages all the FRET values in the selected
-% segment and gives one number. each segment contributes one data point.
-
-% final modification: now saves  the average and full segment data and also sm average in
-% different files. 
-% each file has 2 columns: total intensity and fret
-% changed the averaging of histograms
-
-
-% Modified by Reza March 31 to correct for Gamma
-
-% Excess code removed and variables renamed by Michael Schamber on Feb 2022
-% additional comments made to try and explain code more clearly
 
 % Suppress no terminal ; error/warning
 %#ok<*NOPTS>
